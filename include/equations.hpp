@@ -4,6 +4,12 @@
 #include <iostream>
 #include <vector>
 #include <bits/stdc++.h>
+#include <fstream>
+#include <vector>
+#include <ctime>
+#include <string>
+#include <bits/stdc++.h>
+#include <glm/glm.hpp>
 
 struct Point;
 
