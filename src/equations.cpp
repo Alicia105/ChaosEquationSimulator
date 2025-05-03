@@ -5,6 +5,7 @@
 #include <string>
 #include <bits/stdc++.h>
 #include "../include/equations.hpp"
+#include <glm/glm.hpp>
 
 //#include <SFML/Graphics.hpp>
 using namespace std;
@@ -119,6 +120,45 @@ vector<vector<float>> lorenz_trajectory(Point initialPoint,int numPoints,float m
     return result;
 }
 
+vector<float> lorenz(Point point,float dt, float sigma, float rho, float beta){
+       
+    float x=point.x;
+    float y=point.y;
+    float z=point.z;
+
+    float dx = sigma*(y-x)*dt;
+    float dy = (x*(rho-z)-y)*dt;
+    float dz = (x*y-beta*z)*dt;
+
+    vector<float> result={dt,dx,dy,dz};
+
+    return result;
+}
+
+glm::vec3 lorenz(const glm::vec3& point, float dt, float sigma, float rho, float beta) {
+    float dx = sigma * (point.y - point.x)*dt;
+    float dy = (point.x * (rho - point.z) - point.y)*dt,;
+    float dz = (point.x * point.y - beta * point.z)*dt;
+
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> lorenz_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float sigma, float rho, float beta){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+
+    float dt=maxTime/numPoints;
+
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = lorenz(last, dt, sigma, rho, beta);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
 /*Equation de Rossler:
 dx/dt=-y-z
 dy/dt=x+ay
@@ -219,6 +259,30 @@ vector<vector<float>> rossler_trajectory(Point initialPoint,int numPoints,float 
 
     stream.close();
     return result;
+}
+
+glm::vec3 rossler(const glm::vec3& point,float dt, float a, float b, float c){
+
+    float dx = (-(point.y-point.z))*dt;
+    float dy = (point.x+a*point.z)*dt;
+    float dz = (b+point.z*(point.x-c))*dt;
+
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> rossler_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float a, float b, float c){
+
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = rossler(last,dt,a,b,c);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
 }
 
 /*Equations de Li:
@@ -323,6 +387,30 @@ vector<vector<float>> dequan_li_trajectory(Point initialPoint,int numPoints,floa
 
     stream.close();
     return result;
+}
+
+glm::vec3 dequan_li(const glm::vec3& point,float dt,float a, float b, float c, float d, float e, float f){
+    
+    float dx = (a*(point.y-point.x)+c*point.x*point.z)*dt;
+    float dy = (e*point.x+f*point.y-point.x*point.z)*dt;
+    float dz = (b*point.z+point.x*point.y-d*pow(point.x,2))*dt;
+
+    return glm::vec3(dx, dy, dz);
+
+}
+
+vector<glm::vec3> dequan_li_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float a, float b, float c, float d, float e, float f){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = dequan_li(last,dt,a,b,c,d,e,f);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
 }
 
 /*Equations de Aizawa:
@@ -431,6 +519,30 @@ vector<vector<float>> aizawa_trajectory(Point initialPoint,int numPoints,float m
     return result;
 }
 
+glm::vec3 aizawa(const glm::vec3& point,float dt,float a, float b, float c, float d, float e, float f){
+
+    float dx=((point.z-b)*point.x-d*point.y)*dt;
+    float dy=(d*point.x+(point.z-b)*point.y)*dt;
+    float dz=(c+a*point.z-pow(point.z,3)/3-pow(point.x,2)+f*point.z*pow(point.x,3));
+
+    return glm::vec3(dx, dy, dz);
+
+}
+
+vector<glm::vec3> aizawa_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float a, float b, float c, float d, float e, float f){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = aizawa(last,dt,a,b,c,d,e,f);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
 /*Equations de Chen-Lee:
 dx/dt=a*x-y*z
 dy/dt=b*y+x*z
@@ -530,6 +642,30 @@ vector<vector<float>> chen_lee_trajectory(Point initialPoint,int numPoints,float
 
     stream.close();
     return result;
+}
+
+glm::vec3 chen_lee(const glm::vec3&  point,float dt,float a, float b, float d){
+       
+    float dx=(a*point.x-point.y*point.z)*dt;
+    float dy=(b*point.y+point.x*point.z)*dt;
+    float dz=(d*point.z+(point.x*point.y)/3)*dt;
+
+    return glm::vec3(dx, dy, dz);
+
+}
+
+vector<glm::vec3> chen_lee_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float a, float b,float d){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = chen_lee(last,dt,a,b,d);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
 }
 
 /*Equations de Arneodo:
@@ -634,6 +770,29 @@ vector<vector<float>>arneodo_trajectory(Point initialPoint,int numPoints,float m
     return result;
 }
 
+glm::vec3 arneodo(const glm::vec3& point,float dt,float a, float b, float c){
+    float dx=point.y*dt;
+    float dy=point.z*dt;
+    float dz=(-a*point.x-b*point.y-point.z+c*pow(point.x,3))*dt;
+
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> arneodo_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float a, float b,float c){
+
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = arneodo(last,dt,a,b,c);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
 /*Equations de Sprott B:
 dx/dt=a*y*z
 dy/dt=x-b*y
@@ -736,6 +895,29 @@ vector<vector<float>> sprott_b_trajectory(Point initialPoint,int numPoints,float
     return result;
 }
 
+glm::vec3 sprott_b(const glm::vec3& point,float dt,float a, float b, float c){
+
+    float dx=a*point.y*point.z*dt;
+    float dy=(point.x-b*point.y)*dt;
+    float dz=(c-point.x*point.y)*dt;
+
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> sprott_b_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float a, float b,float c){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = sprott_b(last,dt,a,b,c);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
 /*Equations de Sprott-Linz F:
 dx/dt=y+z
 dy/dt=-x+a*y
@@ -834,6 +1016,29 @@ vector<vector<float>> sprott_linz_f_trajectory(Point initialPoint,int numPoints,
 
     stream.close();
     return result;
+}
+
+glm::vec3 sprott_linz_f(const glm::vec3& point,float dt,float a){
+       
+    float dx=(point.y+point.z)*dt;
+    float dy=(-point.x+a*point.y)*dt;
+    float dz=(pow(point.x,2)-point.z)*dt;
+
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> sprott_linz_f_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float a){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = sprott_linz_f(last,dt,a);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
 }
 
 /*Equations de Dadras:
@@ -939,6 +1144,29 @@ vector<vector<float>> dadras_trajectory(Point initialPoint,int numPoints,float m
     return result;
 }
 
+glm::vec3 dadras(const glm::vec3& point,float dt,float p, float o,float r, float c, float e){
+       
+    float dx=(point.y-p*point.x+o*point.y*point.z)*dt;
+    float dy=(r*point.y-point.x*point.z+point.z)*dt;
+    float dz=(c*point.x*point.y-e*point.z)*dt;
+
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> dadras_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float p, float o,float r, float c, float e){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = dadras(last,dt,p,o,r,c,e);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
 /*Equations de Halvorsen:
 dx/dt=-a*x-4*y-4*z-y*y
 dy/dt=-a*y-4*z-4*x-z*z
@@ -1038,7 +1266,30 @@ vector<vector<float>> halvorsen_trajectory(Point initialPoint,int numPoints,floa
     return result;
 }
 
-int main(){
+glm::vec3 halvorsen(const glm::vec3& point,float dt,float a){
+
+    float dx=(-a*point.x-4*point.y-4*point.z-point.y*point.y)*dt;
+    float dy=(-a*point.y-4*point.z-4*point.x-point.z*point.z)*dt;
+    float dz=(-a*point.z-4*point.x-4*point.y-point.x*point.x)*dt;
+
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> halvorsen_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float a){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = halvorsen(last,dt,a);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
+/*int main(){
     
     Point p;
     p.x=1;
@@ -1053,4 +1304,4 @@ int main(){
 
     vector<vector<float>> res=dadras_trajectory(p,100,5,pl,o,r,c,e);
 
-}
+}*/
