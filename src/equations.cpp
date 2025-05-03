@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <ctime>
+#include <string>
 #include <bits/stdc++.h>
 #include "../include/equations.hpp"
 
@@ -41,15 +43,22 @@ vector<float> lorenz(Point point,float dt, float sigma, float rho, float beta){
 }
 
 vector<vector<float>> lorenz_trajectory(Point initialPoint,int numPoints,float maxTime, float sigma, float rho, float beta){
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
 
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
-    string name = "../results/lorenz_" + string(output) + ".csv";
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
+
+    string name = "../results/lorenz_" + string(output)+ ".csv";
 
     string const file(name);
 
@@ -96,6 +105,8 @@ vector<vector<float>> lorenz_trajectory(Point initialPoint,int numPoints,float m
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
+        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
         }
@@ -137,13 +148,21 @@ vector<float> rossler(Point point,float dt, float a, float b, float c){
 
 vector<vector<float>> rossler_trajectory(Point initialPoint,int numPoints,float maxTime, float a, float b, float c){
 
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
+
     string name = "../results/rossler_" + string(output) + ".csv";
 
     string const file(name);
@@ -191,6 +210,8 @@ vector<vector<float>> rossler_trajectory(Point initialPoint,int numPoints,float 
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
+        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
         }
@@ -231,13 +252,20 @@ vector<float> dequan_li(Point point,float dt,float a, float b, float c, float d,
 }
 
 vector<vector<float>> dequan_li_trajectory(Point initialPoint,int numPoints,float maxTime, float a, float b, float c, float d, float e, float f){
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+   time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
     string name = "../results/dequan_li_" + string(output) + ".csv";
 
     string const file(name);
@@ -285,6 +313,8 @@ vector<vector<float>> dequan_li_trajectory(Point initialPoint,int numPoints,floa
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
+        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
         }
@@ -327,13 +357,20 @@ vector<float> aizawa(Point point,float dt,float a, float b, float c, float d, fl
 
 vector<vector<float>> aizawa_trajectory(Point initialPoint,int numPoints,float maxTime, float a, float b, float c, float d, float e, float f){
 
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
     string name = "../results/aizawa_" + string(output) + ".csv";
 
     string const file(name);
@@ -382,6 +419,8 @@ vector<vector<float>> aizawa_trajectory(Point initialPoint,int numPoints,float m
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
+        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
         }
@@ -420,13 +459,20 @@ vector<float> chen_lee(Point point,float dt,float a, float b, float d){
 }
 
 vector<vector<float>> chen_lee_trajectory(Point initialPoint,int numPoints,float maxTime, float a, float b,float d){
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
     string name = "../results/chen_lee_" + string(output) + ".csv";
 
     string const file(name);
@@ -475,6 +521,8 @@ vector<vector<float>> chen_lee_trajectory(Point initialPoint,int numPoints,float
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
+        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
         }
@@ -513,13 +561,20 @@ vector<float> arneodo(Point point,float dt,float a, float b, float c){
 
 vector<vector<float>>arneodo_trajectory(Point initialPoint,int numPoints,float maxTime, float a, float b,float c){
 
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
     string name = "../results/arneodo_" + string(output) + ".csv";
 
     string const file(name);
@@ -568,6 +623,8 @@ vector<vector<float>>arneodo_trajectory(Point initialPoint,int numPoints,float m
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
+        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
         }
@@ -605,13 +662,20 @@ vector<float> sprott_b(Point point,float dt,float a, float b, float c){
 }
 
 vector<vector<float>> sprott_b_trajectory(Point initialPoint,int numPoints,float maxTime, float a, float b,float c){
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
     string name = "../results/sprott_b_" + string(output) + ".csv";
 
     string const file(name);
@@ -660,6 +724,8 @@ vector<vector<float>> sprott_b_trajectory(Point initialPoint,int numPoints,float
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
+        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
         }
@@ -696,13 +762,20 @@ vector<float> sprott_linz_f(Point point,float dt,float a){
 }
 
 vector<vector<float>> sprott_linz_f_trajectory(Point initialPoint,int numPoints,float maxTime, float a){
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
     string name = "../results/sprott_linz_f_" + string(output) + ".csv";
 
     string const file(name);
@@ -751,6 +824,8 @@ vector<vector<float>> sprott_linz_f_trajectory(Point initialPoint,int numPoints,
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
+        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
         }
@@ -791,13 +866,20 @@ vector<float> dadras(Point point,float dt,float p, float o,float r, float c, flo
 }
 
 vector<vector<float>> dadras_trajectory(Point initialPoint,int numPoints,float maxTime, float p, float o,float r, float c, float e){
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
     string name = "../results/dadras_" + string(output) + ".csv";
 
     string const file(name);
@@ -846,6 +928,8 @@ vector<vector<float>> dadras_trajectory(Point initialPoint,int numPoints,float m
         timeStamp.push_back(re[0]);
         result.push_back(re);
 
+        cout<<re[0]<<","<<re[1]<<","<<re[2]<<","<<re[3]<<endl;
+
         if(writting){
             stream<<re[0]<<","<<re[1]<<","<<re[2]<<","<<re[3]<<endl;
         }
@@ -881,13 +965,20 @@ vector<float> halvorsen(Point point,float dt,float a){
 }
 
 vector<vector<float>> halvorsen_trajectory(Point initialPoint,int numPoints,float maxTime, float a){
-    time_t timestamp = time(NULL);
-    struct tm datetime = *localtime(&timestamp);
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
 
     char output[50];
-  
-    strftime(output, 50, "%e-%b-%Y_%H-%M-%S ", &datetime);
-    cout << output <<endl;
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
     string name = "../results/halvorsen_" + string(output) + ".csv";
 
     string const file(name);
@@ -936,6 +1027,8 @@ vector<vector<float>> halvorsen_trajectory(Point initialPoint,int numPoints,floa
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
+        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
         }
@@ -945,3 +1038,19 @@ vector<vector<float>> halvorsen_trajectory(Point initialPoint,int numPoints,floa
     return result;
 }
 
+int main(){
+    
+    Point p;
+    p.x=1;
+    p.y=1;
+    p.z=2;
+
+    float pl=3;
+    float o=2.7;
+    float r=1.7;
+    float c=2;
+    float e=9;
+
+    vector<vector<float>> res=dadras_trajectory(p,100,5,pl,o,r,c,e);
+
+}
