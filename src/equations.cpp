@@ -7,13 +7,7 @@
 #include "../include/equations.hpp"
 #include <glm/glm.hpp>
 
-
 using namespace std;
-struct Point{
-    float x;
-    float y;
-    float z;    
-};
 
 /* Eq de Lorenz
 
@@ -106,7 +100,8 @@ vector<vector<float>> lorenz_trajectory(Point initialPoint,int numPoints,float m
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
-        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
 
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
@@ -235,7 +230,8 @@ vector<vector<float>> rossler_trajectory(Point initialPoint,int numPoints,float 
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
-        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
 
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
@@ -270,9 +266,9 @@ vector<glm::vec3> rossler_trajectory(glm::vec3 initialPoint,int numPoints,float 
     return trajectory;
 }
 
-/*Equations de Li:
+/*Equations de Li (Three-Scroll Unified Chaotic System):
 dx/dt=a*(y-x)+d*x*z
-dy/dt=k*x+f*y-x*z
+dy/dt=b*x+f*y-x*z
 dz/dt=c*z+x*y-e*x^2
 */
 
@@ -362,7 +358,8 @@ vector<vector<float>> dequan_li_trajectory(Point initialPoint,int numPoints,floa
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
-        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
 
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
@@ -492,7 +489,8 @@ vector<vector<float>> aizawa_trajectory(Point initialPoint,int numPoints,float m
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
-        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
 
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
@@ -618,7 +616,8 @@ vector<vector<float>> chen_lee_trajectory(Point initialPoint,int numPoints,float
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
-        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
 
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
@@ -744,7 +743,8 @@ vector<vector<float>>arneodo_trajectory(Point initialPoint,int numPoints,float m
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
-        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
 
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
@@ -868,7 +868,8 @@ vector<vector<float>> sprott_b_trajectory(Point initialPoint,int numPoints,float
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
-        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
 
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
@@ -991,7 +992,8 @@ vector<vector<float>> sprott_linz_f_trajectory(Point initialPoint,int numPoints,
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
-        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
 
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
@@ -1118,7 +1120,7 @@ vector<vector<float>> dadras_trajectory(Point initialPoint,int numPoints,float m
         timeStamp.push_back(re[0]);
         result.push_back(re);
 
-        cout<<re[0]<<","<<re[1]<<","<<re[2]<<","<<re[3]<<endl;
+        //cout<<re[0]<<","<<re[1]<<","<<re[2]<<","<<re[3]<<endl;
 
         if(writting){
             stream<<re[0]<<","<<re[1]<<","<<re[2]<<","<<re[3]<<endl;
@@ -1240,7 +1242,8 @@ vector<vector<float>> halvorsen_trajectory(Point initialPoint,int numPoints,floa
         timeStamp.push_back(r[0]);
         result.push_back(r);
 
-        cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
 
         if(writting){
             stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
@@ -1290,3 +1293,4 @@ vector<glm::vec3> halvorsen_trajectory(glm::vec3 initialPoint,int numPoints,floa
     vector<vector<float>> res=dadras_trajectory(p,100,5,pl,o,r,c,e);
 
 }*/
+

@@ -10,13 +10,15 @@
 #include <string>
 #include <glm/glm.hpp>
 
-struct Point;
+struct Point {
+    float x, y, z;
+    Point() : x(0), y(0), z(0) {}
+    Point(float x, float y, float z) : x(x), y(y), z(z) {}
+};
 
 //good
 std::vector<float> lorenz(Point point,float dt, float sigma, float rho, float beta);
 std::vector<std::vector<float>> lorenz_trajectory(Point initialPoint,int numPoints,float maxTime, float sigma, float rho, float beta);
-
-//to test
 glm::vec3 lorenz(const glm::vec3& point, float dt, float sigma, float rho, float beta);
 std::vector<glm::vec3> lorenz_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float sigma, float rho, float beta);
 

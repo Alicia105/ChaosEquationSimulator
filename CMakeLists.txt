@@ -16,6 +16,12 @@ add_executable(ChaosEquationSimulator
     src/equations.cpp
     src/shader_loader.cpp 
     external/glad/src/glad.c
+    external/imgui/imgui.cpp
+    external/imgui/imgui_draw.cpp
+    external/imgui/imgui_tables.cpp
+    external/imgui/imgui_widgets.cpp
+    external/imgui/backends/imgui_impl_glfw.cpp
+    external/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 # Include directories
@@ -23,7 +29,8 @@ target_include_directories(ChaosEquationSimulator PRIVATE
     ${OPENGL_INCLUDE_DIRS}
     external/glad/include
     external/glfw/include
-    external/glm             
+    external/glm
+    external/imgui            
 )
 
 # Link libraries
