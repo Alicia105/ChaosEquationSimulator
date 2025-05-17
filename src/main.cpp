@@ -10,11 +10,63 @@
 
 using namespace std;
 
+float cameraDistance = 50.0f;
+float yaw = -90.0f;  // left/right
+float pitch = 0.0f;  // up/down
+float lastX = 400, lastY = 300;
+bool firstMouse = true;
+bool mouseHeld = false;
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    cameraDistance -= yoffset * 2.0f;
+    if (cameraDistance < 2.0f) cameraDistance = 2.0f;
+    if (cameraDistance > 200.0f) cameraDistance = 200.0f;
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (!mouseHeld) return;
+
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;  // reversed
+
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.2f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    // Clamp pitch
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            mouseHeld = true;
+            firstMouse = true;
+        } else if (action == GLFW_RELEASE) {
+            mouseHeld = false;
+        }
+    }
+}
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
 int main() {
+
     if (!glfwInit()) {
         cerr << "Failed to initialize GLFW\n";
         return -1;
@@ -29,6 +81,10 @@ int main() {
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         cerr << "Failed to initialize GLAD\n";
@@ -69,8 +125,14 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::vec3 direction;
+        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+        direction.y = sin(glm::radians(pitch));
+        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        glm::vec3 cameraPos = -cameraDistance * glm::normalize(direction);
+        glm::mat4 view = glm::lookAt(cameraPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
         glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 50), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
         glm::mat4 mvp = projection * view * model;
 
