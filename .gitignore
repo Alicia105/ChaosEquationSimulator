@@ -1,4 +1,5 @@
 src/*.exe
 results/*.csv
 .vscode/
-
+build/
+external/

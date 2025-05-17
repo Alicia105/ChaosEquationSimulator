@@ -120,24 +120,9 @@ vector<vector<float>> lorenz_trajectory(Point initialPoint,int numPoints,float m
     return result;
 }
 
-vector<float> lorenz(Point point,float dt, float sigma, float rho, float beta){
-       
-    float x=point.x;
-    float y=point.y;
-    float z=point.z;
-
-    float dx = sigma*(y-x)*dt;
-    float dy = (x*(rho-z)-y)*dt;
-    float dz = (x*y-beta*z)*dt;
-
-    vector<float> result={dt,dx,dy,dz};
-
-    return result;
-}
-
 glm::vec3 lorenz(const glm::vec3& point, float dt, float sigma, float rho, float beta) {
     float dx = sigma * (point.y - point.x)*dt;
-    float dy = (point.x * (rho - point.z) - point.y)*dt,;
+    float dy = (point.x * (rho - point.z) - point.y)*dt;
     float dz = (point.x * point.y - beta * point.z)*dt;
 
     return glm::vec3(dx, dy, dz);
