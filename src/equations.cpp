@@ -7,7 +7,7 @@
 #include "../include/equations.hpp"
 #include <glm/glm.hpp>
 
-//#include <SFML/Graphics.hpp>
+
 using namespace std;
 struct Point{
     float x;

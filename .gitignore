@@ -1,5 +1,6 @@
 src/*.exe
+src/test.cpp
 results/*.csv
 .vscode/
 build/
-
+external/

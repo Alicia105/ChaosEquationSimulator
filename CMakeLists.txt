@@ -13,7 +13,8 @@ add_subdirectory(external/glfw)
 # Source files
 add_executable(ChaosEquationSimulator 
     src/main.cpp 
-    src/equations.cpp 
+    src/equations.cpp
+    src/shader_loader.cpp 
     external/glad/src/glad.c
 )
 
