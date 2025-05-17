@@ -1,5 +1,5 @@
-#ifndef EQUATIONS_H
-#define EQUATIONS_H
+#ifndef EQUATIONS_HPP
+#define EQUATIONS_HPP
 
 #include <iostream>
 #include <vector>
@@ -8,7 +8,6 @@
 #include <vector>
 #include <ctime>
 #include <string>
-#include <bits/stdc++.h>
 #include <glm/glm.hpp>
 
 struct Point;

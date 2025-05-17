@@ -13,9 +13,18 @@ using namespace std;
 float cameraDistance = 50.0f;
 float yaw = -90.0f;  // left/right
 float pitch = 0.0f;  // up/down
-float lastX = 400, lastY = 300;
-bool firstMouse = true;
+
+float lastX = 400;
+float lastY = 300;
+
+bool leftMouse = true;
 bool mouseHeld = false;
+bool rightMouse = false;
+
+float radius = 50.0f;
+double lastPanX = 0.0;
+double lastPanY = 0.0;
+glm::vec3 cameraTarget = glm::vec3(0.0f);
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     cameraDistance -= yoffset * 2.0f;
@@ -26,44 +35,107 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     if (!mouseHeld) return;
 
-    if (firstMouse) {
+    if (rightMouse) {
+        float xoffset = lastPanX - xpos ;
+        float yoffset = lastPanY - ypos;
+        lastPanX = xpos;
+        lastPanY = ypos;
+
+        float panSpeed = 0.1f;
+
+        glm::vec3 front;
+        front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+        front.y = sin(glm::radians(pitch));
+        front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        glm::vec3 direction = glm::normalize(front);
+        glm::vec3 right = glm::normalize(glm::cross(direction, glm::vec3(0.0f, 1.0f, 0.0f)));
+        glm::vec3 up = glm::normalize(glm::cross(right, direction));
+
+        cameraTarget -= right * xoffset * panSpeed;
+        cameraTarget -= up * yoffset * panSpeed;
+
+    } else {
+        if (leftMouse) {
+            lastX = xpos;
+            lastY = ypos;
+            leftMouse = false;
+        }
+
+        float xoffset = xpos - lastX;
+        float yoffset = lastY - ypos;
         lastX = xpos;
         lastY = ypos;
-        firstMouse = false;
-    }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;  // reversed
+        float sensitivity = 0.1f;
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
 
-    lastX = xpos;
-    lastY = ypos;
+        yaw += xoffset;
+        pitch += yoffset;
 
-    float sensitivity = 0.2f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    // Clamp pitch
-    if (pitch > 89.0f) pitch = 89.0f;
-    if (pitch < -89.0f) pitch = -89.0f;
-}
-
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (action == GLFW_PRESS) {
-            mouseHeld = true;
-            firstMouse = true;
-        } else if (action == GLFW_RELEASE) {
-            mouseHeld = false;
-        }
+        if (pitch > 89.0f) pitch = 89.0f;
+        if (pitch < -89.0f) pitch = -89.0f;
     }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            mouseHeld = true;
+            leftMouse = true;
+        } else if (action == GLFW_RELEASE) {
+            mouseHeld = false;
+        }
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        if (action == GLFW_PRESS) {
+            rightMouse = true;
+            mouseHeld = true;
+            glfwGetCursorPos(window, &lastPanX, &lastPanY);
+        } else if (action == GLFW_RELEASE) {
+            rightMouse = false;
+            mouseHeld = false;
+        }
+    }
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+        yaw = -90.0f;
+        pitch = 0.0f;
+        radius = 50.0f;
+        cameraTarget = glm::vec3(0.0f);
+    }
+}
+
+//to modify/merge
+/*void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            mouseHeld = true;
+            leftMouse = true;
+        } else if (action == GLFW_RELEASE) {
+            mouseHeld = false;
+        }
+    }
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        if (action == GLFW_PRESS) {
+            rightMousePressed = true;
+            glfwGetCursorPos(window, &lastPanX, &lastPanY);
+        } else if (action == GLFW_RELEASE) {
+            rightMousePressed = false;
+        }
+    }
+}
+*/
 
 int main() {
 
@@ -81,10 +153,11 @@ int main() {
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetKeyCallback(window, key_callback);
+
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         cerr << "Failed to initialize GLAD\n";
@@ -129,8 +202,9 @@ int main() {
         direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
         direction.y = sin(glm::radians(pitch));
         direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        glm::vec3 cameraPos = -cameraDistance * glm::normalize(direction);
-        glm::mat4 view = glm::lookAt(cameraPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+        glm::vec3 cameraPos = cameraTarget + cameraDistance * direction;
+        glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
