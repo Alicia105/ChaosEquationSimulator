@@ -176,6 +176,16 @@ vector<vector<float>> generate_trajectory_csv(AttractorType type, Point start,in
         return dadras_trajectory(start,numPoints,maxTime, dadrasP, dadrasO,dadrasR,dadrasC,dadrasE);
     else if (type == HALVORSEN)
         return halvorsen_trajectory(start,numPoints,maxTime, halvorsenA);
+    else if (type == THOMAS)
+        return thomas_trajectory(start,numPoints,maxTime, thomasB);
+    else if (type == LORENZ83)
+        return lorenz83_trajectory(start,numPoints,maxTime,lorenz83A,lorenz83B,lorenz83F,lorenz83G);
+    else if (type == RABINOVICH_FABRIKANT)
+        return rabinovich_fabrikant_trajectory(start,numPoints,maxTime,rabinovichAlpha,rabinovichGamma);
+    else if (type == FOUR_WING)
+        return four_wing_trajectory(start,numPoints,maxTime,fourWingA,fourWingB,fourWingC);
+    else if (type == SPROTT)
+        return sprott_trajectory(start,numPoints,maxTime,sprottA,sprottB);
     return {};
 }
 
@@ -362,88 +372,88 @@ int main() {
         // Parameters per attractor
         if (ImGui::CollapsingHeader("Parameters", ImGuiTreeNodeFlags_DefaultOpen)) {
             if (currentAttractor == LORENZ) {
-                ImGui::InputFloat("Sigma", &lorenzSigma, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("Rho", &lorenzRho, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("Beta", &lorenzBeta, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("Sigma", &lorenzSigma, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("Rho", &lorenzRho, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("Beta", &lorenzBeta, 0.1f, 1.0f, "%.3f");
             } 
             else if (currentAttractor == ROSSLER) {
-                ImGui::InputFloat("a", &rosslerA, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &rosslerB, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("c", &rosslerC, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &rosslerA, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &rosslerB, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("c", &rosslerC, 0.1f, 1.0f, "%.3f");
             } 
             else if (currentAttractor == AIZAWA) {
-                ImGui::InputFloat("a", &aizawaA, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &aizawaB, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("c", &aizawaC, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("d", &aizawaD, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("e", &aizawaE, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("f", &aizawaF, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &aizawaA, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &aizawaB, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("c", &aizawaC, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("d", &aizawaD, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("e", &aizawaE, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("f", &aizawaF, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == DEQUAN_LI){
-                ImGui::InputFloat("a",&dequan_liA, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &dequan_liB, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("c", &dequan_liC, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("d", &dequan_liD, 0.1f, 1.0f, "%.2f"); 
-                ImGui::InputFloat("e", &dequan_liE, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("f", &dequan_liF, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a",&dequan_liA, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &dequan_liB, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("c", &dequan_liC, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("d", &dequan_liD, 0.1f, 1.0f, "%.3f"); 
+                ImGui::InputFloat("e", &dequan_liE, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("f", &dequan_liF, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == AIZAWA){
-                ImGui::InputFloat("a", &aizawaA, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &aizawaB, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("c", &aizawaC, 0.1f, 1.0f, "%.2f"); 
-                ImGui::InputFloat("d", &aizawaD, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("e", &aizawaE, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("f", &aizawaF, 0.1f, 1.0f, "%.2f"); 
+                ImGui::InputFloat("a", &aizawaA, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &aizawaB, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("c", &aizawaC, 0.1f, 1.0f, "%.3f"); 
+                ImGui::InputFloat("d", &aizawaD, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("e", &aizawaE, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("f", &aizawaF, 0.1f, 1.0f, "%.3f"); 
             }
             else if (currentAttractor == CHEN_LEE){
-                ImGui::InputFloat("a", &chen_leeA, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &chen_leeB, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("d", &chen_leeD, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &chen_leeA, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &chen_leeB, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("d", &chen_leeD, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == ARNEODO){
-                ImGui::InputFloat("a", &arneodoA, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &arneodoB, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("c", &arneodoC, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &arneodoA, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &arneodoB, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("c", &arneodoC, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == SPROTT_B){
-                ImGui::InputFloat("a", &sprott_bA, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &sprott_bB, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("c", &sprott_bC, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &sprott_bA, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &sprott_bB, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("c", &sprott_bC, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == SPROTT_LINZ_F){
-                ImGui::InputFloat("a", &sprott_linz_fA, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &sprott_linz_fA, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == DADRAS){
-                ImGui::InputFloat("p", &dadrasP, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("o", &dadrasO, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("r", &dadrasR, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("c", &dadrasC, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("e", &dadrasE, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("p", &dadrasP, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("o", &dadrasO, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("r", &dadrasR, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("c", &dadrasC, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("e", &dadrasE, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == HALVORSEN){
-                ImGui::InputFloat("a", &halvorsenA, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &halvorsenA, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == THOMAS){
-                ImGui::InputFloat("b", &thomasB, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("b", &thomasB, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == LORENZ83){
-                ImGui::InputFloat("a", &lorenz83A, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &lorenz83B, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("f", &lorenz83F, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("g", &lorenz83G, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &lorenz83A, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &lorenz83B, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("f", &lorenz83F, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("g", &lorenz83G, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == RABINOVICH_FABRIKANT){
-                ImGui::InputFloat("alpha", &rabinovichAlpha, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("gamma", &rabinovichGamma, 0.1f, 1.0f, "%.2f");                
+                ImGui::InputFloat("alpha", &rabinovichAlpha, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("gamma", &rabinovichGamma, 0.1f, 1.0f, "%.3f");                
             }
             else if (currentAttractor == FOUR_WING){
-                ImGui::InputFloat("a", &fourWingA, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &fourWingB, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("c", &fourWingC, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &fourWingA, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &fourWingB, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("c", &fourWingC, 0.1f, 1.0f, "%.3f");
             }
             else if (currentAttractor == SPROTT){
-                ImGui::InputFloat("a", &sprottA, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("b", &sprottB, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("a", &sprottA, 0.1f, 1.0f, "%.3f");
+                ImGui::InputFloat("b", &sprottB, 0.1f, 1.0f, "%.3f");
             }
         }
 
@@ -454,7 +464,7 @@ int main() {
                 
             }
         }*/
-       
+
         if (ImGui::Button("Generate Trajectory")) {
             trajectory = generate_trajectory(currentAttractor, initialPoint,numPoints,maxTime);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);

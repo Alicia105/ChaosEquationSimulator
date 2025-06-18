@@ -124,6 +124,22 @@ glm::vec3 lorenz(const glm::vec3& point, float dt, float sigma, float rho, float
     return glm::vec3(dx, dy, dz);
 }
 
+vector<glm::vec3> lorenz_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float sigma, float rho, float beta){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+
+    float dt=maxTime/numPoints;
+
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = lorenz(last, dt, sigma, rho, beta);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
 /*Equation de Rossler:
 dx/dt=-y-z
 dy/dt=x+ay
@@ -1514,7 +1530,6 @@ vector<glm::vec3> lorenz83_trajectory(glm::vec3 initialPoint,int numPoints,float
     return trajectory;
 }
 
-
 /* Eq de Rabinovich-Fabrikant
 (dx/dt)= y*(z-1+pow(x,2))+gamma*x
 (dy/dt)= x(3*z+1-pow(x,2))+gamma*y
@@ -1900,7 +1915,7 @@ vector<glm::vec3> sprott_trajectory(glm::vec3 initialPoint,int numPoints,float m
 
 //get_speed()
 
-int main(){
+/*int main(){
 
     int numPoints=100;
     float maxTime=5;
@@ -1932,3 +1947,4 @@ int main(){
     b=1.79;
     vector<vector<float>> res5 = sprott_trajectory(p,numPoints,maxTime,a,b);
 }
+*/
