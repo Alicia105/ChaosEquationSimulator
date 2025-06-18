@@ -41,7 +41,12 @@ enum AttractorType {
     SPROTT_B,
     SPROTT_LINZ_F,
     DADRAS,
-    HALVORSEN
+    HALVORSEN,
+    THOMAS,
+    LORENZ83,
+    RABINOVICH_FABRIKANT,
+    FOUR_WING,
+    SPROTT
 };
 AttractorType currentAttractor = LORENZ;
 
@@ -87,7 +92,24 @@ float dadrasR = 1.7;
 float dadrasC = 2;
 float dadrasE = 9;
 
-float halvorsenA =1.4;
+float halvorsenA = 1.4;
+
+float thomasB = 0.208186;
+
+float lorenz83A = 0.95;
+float lorenz83B = 7.91;
+float lorenz83F = 4.83;
+float lorenz83G = 4.66;
+
+float rabinovichAlpha=0.14;
+float rabinovichGamma=0.10;
+
+float fourWingA=0.2;
+float fourWingB=0.01;
+float fourWingC=-0.4;
+
+float sprottA=2.07;
+float sprottB=1.79;
 
 //initial trajectory characteristics
 int numPoints=1000;
@@ -95,6 +117,7 @@ float maxTime=5;
 float x=5.0f;
 float y=5.0f;
 float z=5.0f;
+//int numParticles=0;
 
 //Generate trajectory
 
@@ -119,6 +142,16 @@ vector<glm::vec3> generate_trajectory(AttractorType type, const glm::vec3& start
         return dadras_trajectory(start,numPoints,maxTime, dadrasP, dadrasO,dadrasR,dadrasC,dadrasE);
     else if (type == HALVORSEN)
         return halvorsen_trajectory(start,numPoints,maxTime, halvorsenA);
+    else if (type == THOMAS)
+        return thomas_trajectory(start,numPoints,maxTime, thomasB);
+    else if (type == LORENZ83)
+        return lorenz83_trajectory(start,numPoints,maxTime,lorenz83A,lorenz83B,lorenz83F,lorenz83G);
+    else if (type == RABINOVICH_FABRIKANT)
+        return rabinovich_fabrikant_trajectory(start,numPoints,maxTime,rabinovichAlpha,rabinovichGamma);
+    else if (type == FOUR_WING)
+        return four_wing_trajectory(start,numPoints,maxTime,fourWingA,fourWingB,fourWingC);
+    else if (type == SPROTT)
+        return sprott_trajectory(start,numPoints,maxTime,sprottA,sprottB);
     return {};
 }
 
@@ -145,6 +178,10 @@ vector<vector<float>> generate_trajectory_csv(AttractorType type, Point start,in
         return halvorsen_trajectory(start,numPoints,maxTime, halvorsenA);
     return {};
 }
+
+/*vector<glm::vec3> drawParticles(AttractorType type, const glm::vec3& start,int numPoints,float maxTime){
+
+}*/
 
 //Actions window call back
 
@@ -315,7 +352,7 @@ int main() {
         }
 
         if (ImGui::CollapsingHeader("Choose Attractor", ImGuiTreeNodeFlags_DefaultOpen)) {
-            const char* items[] = { "Lorenz","Rossler","Dequan_Li","Aizawa","Chen_Lee","Arneodo","Sprott_B","Sprott_Linz_F","Dadras","Halvorsen"};
+            const char* items[] = { "Lorenz","Rossler","Dequan_Li","Aizawa","Chen_Lee","Arneodo","Sprott_B","Sprott_Linz_F","Dadras","Halvorsen","Thomas","Lorenz83","Rabinovich_Fabrikant","Four_Wing","Sprott"};
             static int selected = currentAttractor;
             if (ImGui::Combo("Attractor", &selected, items, IM_ARRAYSIZE(items))) {
                 currentAttractor = static_cast<AttractorType>(selected);
@@ -386,8 +423,38 @@ int main() {
             else if (currentAttractor == HALVORSEN){
                 ImGui::InputFloat("a", &halvorsenA, 0.1f, 1.0f, "%.2f");
             }
+            else if (currentAttractor == THOMAS){
+                ImGui::InputFloat("b", &thomasB, 0.1f, 1.0f, "%.2f");
+            }
+            else if (currentAttractor == LORENZ83){
+                ImGui::InputFloat("a", &lorenz83A, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("b", &lorenz83B, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("f", &lorenz83F, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("g", &lorenz83G, 0.1f, 1.0f, "%.2f");
+            }
+            else if (currentAttractor == RABINOVICH_FABRIKANT){
+                ImGui::InputFloat("alpha", &rabinovichAlpha, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("gamma", &rabinovichGamma, 0.1f, 1.0f, "%.2f");                
+            }
+            else if (currentAttractor == FOUR_WING){
+                ImGui::InputFloat("a", &fourWingA, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("b", &fourWingB, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("c", &fourWingC, 0.1f, 1.0f, "%.2f");
+            }
+            else if (currentAttractor == SPROTT){
+                ImGui::InputFloat("a", &sprottA, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("b", &sprottB, 0.1f, 1.0f, "%.2f");
+            }
         }
 
+        /*if (ImGui::CollapsingHeader("Particles", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::InputInt("Number of particles", &numParticles, 1, 1);
+            if(ImGui::Button("Add particles")){
+                drawParticles();
+                
+            }
+        }*/
+       
         if (ImGui::Button("Generate Trajectory")) {
             trajectory = generate_trajectory(currentAttractor, initialPoint,numPoints,maxTime);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);

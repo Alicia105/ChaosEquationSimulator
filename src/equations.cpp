@@ -5,6 +5,7 @@
 #include <string>
 #include <bits/stdc++.h>
 #include "../include/equations.hpp"
+//#include "../external/glm/glm/glm.hpp"
 #include <glm/glm.hpp>
 
 using namespace std;
@@ -121,22 +122,6 @@ glm::vec3 lorenz(const glm::vec3& point, float dt, float sigma, float rho, float
     float dz = (point.x * point.y - beta * point.z)*dt;
 
     return glm::vec3(dx, dy, dz);
-}
-
-vector<glm::vec3> lorenz_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float sigma, float rho, float beta){
-    vector<glm::vec3> trajectory;
-    trajectory.push_back(initialPoint);
-
-    float dt=maxTime/numPoints;
-
-    for (int i = 0; i < numPoints; i++) {
-        glm::vec3 last = trajectory.back();
-        glm::vec3 derivatives = lorenz(last, dt, sigma, rho, beta);
-        glm::vec3 next = last + derivatives;
-        trajectory.push_back(next);
-    }
-
-    return trajectory;
 }
 
 /*Equation de Rossler:
@@ -1277,20 +1262,673 @@ vector<glm::vec3> halvorsen_trajectory(glm::vec3 initialPoint,int numPoints,floa
     return trajectory;
 }
 
-/*int main(){
+
+/*Equations de Thomas:
+dx/dt=sin(y)-bx
+dy/dt=sin(z)-by
+dz/dt=sin(x)-bz
+*/
+
+/*Valeurs de b:
+b=0.208186
+*/
+
+vector<float> thomas(Point point,float dt,float b){
+       
+    float x=point.x;
+    float y=point.y;
+    float z=point.z;
+
+    float dx=(sin(y)-b*x)*dt;
+    float dy=(sin(z)-b*y)*dt;
+    float dz=(sin(x)-b*z)*dt;
+
+    vector<float> result={dt,dx,dy,dz};
+
+    return result;
+}
+
+vector<vector<float>> thomas_trajectory(Point initialPoint,int numPoints,float maxTime, float b){
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
+
+    char output[50];
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
+    string name = "../results/thomas_" + string(output) + ".csv";
+
+    string const file(name);
+
+    ofstream stream(file.c_str());
+
+    bool writting;
+
+    if(stream){
+        writting=true;
+        cout << "File opened: " << name << std::endl;        
+    }
+    else{
+        writting=false;   
+        cout << "ERREUR: Impossible d'ouvrir le fichier." << endl;
+    }
+
+    vector<Point> trajectory;
+    vector<float>  timeStamp;
+    float dt=maxTime/numPoints;
+
+    vector<vector<float>> result;
+
+    trajectory.push_back(initialPoint);
+    timeStamp.push_back(0.0);
+    
+    vector<float> startingPoint={0.0,initialPoint.x,initialPoint.y,initialPoint.z};
+    result.push_back(startingPoint);    
+
+    // Example write (optional)
+    if (writting) {
+        stream << "time,x,y,z"<<endl; // CSV header
+        stream<<startingPoint[0]<<","<<startingPoint[1]<<","<<startingPoint[2]<<","<<startingPoint[3]<<endl;
+    }
+
+    for(int i=0; i<numPoints;i++){
+        vector<float> r=(thomas(trajectory[i],dt,b));
+        r[0]=timeStamp[i]+dt;
+
+        Point p;
+        p.x=r[1];
+        p.y=r[2];
+        p.z=r[3];
+        
+        trajectory.push_back(p);
+        timeStamp.push_back(r[0]);
+        result.push_back(r);
+
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
+
+        if(writting){
+            stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        }
+    }
+
+    stream.close();
+    return result;
+}
+
+glm::vec3 thomas(const glm::vec3& point,float dt,float b){
+
+    float dx=(sin(point.y)-b*point.x)*dt;
+    float dy=(sin(point.z)-b*point.y)*dt;
+    float dz=(sin(point.x)-b*point.z)*dt;
+
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> thomas_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime, float b){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = thomas(last,dt,b);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
+
+/* Eq de Lorenz83
+(dx/dt)= -a*x-pow(y,2)-pow(z,2)+a*f
+(dy/dt)= -y+x*y-b*x*z+g
+(dz/dt)= -z+b*x*y+x*z
+*/
+
+/* Valeurs de a,b,f,g caractéristiques :
+a=0.95
+b=7.91
+f=4.83
+g=4.66
+*/
+
+vector<float> lorenz83(Point point,float dt, float a,float b, float f, float g){
+       
+    float x=point.x;
+    float y=point.y;
+    float z=point.z;
+
+    float dx = (-a*x-pow(y,2)-pow(z,2)+a*f)*dt;
+    float dy = (-y+x*y-b*x*z+g)*dt;
+    float dz = (-z+b*x*y+x*z)*dt;
+
+    vector<float> result={dt,dx,dy,dz};
+
+    return result;
+}
+
+vector<vector<float>> lorenz83_trajectory(Point initialPoint,int numPoints,float maxTime, float a,float b, float f, float g){
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
+
+    char output[50];
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
+
+    string name = "../results/lorenz83_" + string(output)+ ".csv";
+
+    string const file(name);
+
+    ofstream stream(file.c_str());
+
+    bool writting;
+
+    if(stream){
+        writting=true;
+        cout << "File opened: " << name << std::endl;        
+    }
+    else{
+        writting=false;   
+        cout << "ERREUR: Impossible d'ouvrir le fichier." << endl;
+    }
+
+    vector<Point> trajectory;
+    vector<float>  timeStamp;
+    float dt=maxTime/numPoints;
+
+    vector<vector<float>> result;
+
+    trajectory.push_back(initialPoint);
+    timeStamp.push_back(0.0);
+    
+    vector<float> startingPoint={0.0,initialPoint.x,initialPoint.y,initialPoint.z};
+    result.push_back(startingPoint);
+    // Example write (optional)
+    if (writting) {
+        stream << "time,x,y,z"<<endl; // CSV header
+        stream<<startingPoint[0]<<","<<startingPoint[1]<<","<<startingPoint[2]<<","<<startingPoint[3]<<endl;
+    }   
+
+    for(int i=0; i<numPoints;i++){
+        vector<float> r=(lorenz83(trajectory[i],dt,a,b,f,g));
+        r[0]=timeStamp[i]+dt;
+
+        Point p;
+        p.x=r[1];
+        p.y=r[2];
+        p.z=r[3];
+
+        trajectory.push_back(p);
+        timeStamp.push_back(r[0]);
+        result.push_back(r);
+
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
+
+        if(writting){
+            stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        }
+
+    }
+
+
+    stream.close();
+
+    return result;
+}
+
+glm::vec3 lorenz83(const glm::vec3& point, float dt,float a,float b, float f, float g) {
+    float dx = (-a*point.x-pow(point.y,2)-pow(point.z,2)+a*f)*dt;
+    float dy = (-point.y+point.x*point.y-b*point.x*point.z+g)*dt;
+    float dz = (-point.z+b*point.x*point.y+point.x*point.z)*dt;
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> lorenz83_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime,float a,float b, float f, float g){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = lorenz83(last,dt,a,b,f,g);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
+
+/* Eq de Rabinovich-Fabrikant
+(dx/dt)= y*(z-1+pow(x,2))+gamma*x
+(dy/dt)= x(3*z+1-pow(x,2))+gamma*y
+(dz/dt)= -2*z(alpha+x*y)
+*/
+
+/* Valeurs de alpha,gamma caractéristiques :
+alpha=0.14
+gamma=0.10
+*/
+
+vector<float> rabinovich_fabrikant(Point point,float dt, float alpha,float gamma){
+       
+    float x=point.x;
+    float y=point.y;
+    float z=point.z;
+
+    float dx = (y*(z-1+pow(x,2))+gamma*x)*dt;
+    float dy = (x*(3*z+1-pow(x,2))+gamma*y)*dt;
+    float dz = (-2*z*(alpha+x*y))*dt;
+
+    vector<float> result={dt,dx,dy,dz};
+
+    return result;
+}
+
+vector<vector<float>> rabinovich_fabrikant_trajectory(Point initialPoint,int numPoints,float maxTime, float alpha, float gamma){
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
+
+    char output[50];
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
+
+    string name = "../results/rabinovich_fabrikant_" + string(output)+ ".csv";
+
+    string const file(name);
+
+    ofstream stream(file.c_str());
+
+    bool writting;
+
+    if(stream){
+        writting=true;
+        cout << "File opened: " << name << std::endl;        
+    }
+    else{
+        writting=false;   
+        cout << "ERREUR: Impossible d'ouvrir le fichier." << endl;
+    }
+
+    vector<Point> trajectory;
+    vector<float>  timeStamp;
+    float dt=maxTime/numPoints;
+
+    vector<vector<float>> result;
+
+    trajectory.push_back(initialPoint);
+    timeStamp.push_back(0.0);
+    
+    vector<float> startingPoint={0.0,initialPoint.x,initialPoint.y,initialPoint.z};
+    result.push_back(startingPoint);
+    // Example write (optional)
+    if (writting) {
+        stream << "time,x,y,z"<<endl; // CSV header
+        stream<<startingPoint[0]<<","<<startingPoint[1]<<","<<startingPoint[2]<<","<<startingPoint[3]<<endl;
+    }   
+
+    for(int i=0; i<numPoints;i++){
+        vector<float> r=(rabinovich_fabrikant(trajectory[i],dt,alpha,gamma));
+        r[0]=timeStamp[i]+dt;
+
+        Point p;
+        p.x=r[1];
+        p.y=r[2];
+        p.z=r[3];
+
+        trajectory.push_back(p);
+        timeStamp.push_back(r[0]);
+        result.push_back(r);
+
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
+
+        if(writting){
+            stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        }
+
+    }
+
+
+    stream.close();
+
+    return result;
+}
+
+glm::vec3 rabinovich_fabrikant(const glm::vec3& point, float dt,float alpha, float gamma) {
+    float dx = (point.y*(point.z-1+pow(point.x,2))+gamma*point.x)*dt;
+    float dy = (point.x*(3*point.z+1-pow(point.x,2))+gamma*point.y)*dt;
+    float dz = (-2*point.z*(alpha+point.x*point.y))*dt;
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> rabinovich_fabrikant_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime,float alpha,float gamma){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = rabinovich_fabrikant(last,dt,alpha,gamma);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
+
+/* Eq de Four-Wing
+(dx/dt)= a*x+y*z
+(dy/dt)= b*x+c*y-x*z
+(dz/dt)= -z-x*y
+*/
+
+/* Valeurs de a,b,c caractéristiques :
+a=0.2
+b=0.01
+c=-0.4
+*/
+
+vector<float> four_wing(Point point,float dt, float a,float b, float c){
+       
+    float x=point.x;
+    float y=point.y;
+    float z=point.z;
+
+    float dx = (a*x+y*z)*dt;
+    float dy = (b*x+c*y-x*z)*dt;
+    float dz = (-z-x*y)*dt;
+
+    vector<float> result={dt,dx,dy,dz};
+
+    return result;
+}
+
+vector<vector<float>> four_wing_trajectory(Point initialPoint,int numPoints,float maxTime, float a, float b, float c){
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
+
+    char output[50];
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
+
+    string name = "../results/four_wing_" + string(output)+ ".csv";
+
+    string const file(name);
+
+    ofstream stream(file.c_str());
+
+    bool writting;
+
+    if(stream){
+        writting=true;
+        cout << "File opened: " << name << std::endl;        
+    }
+    else{
+        writting=false;   
+        cout << "ERREUR: Impossible d'ouvrir le fichier." << endl;
+    }
+
+    vector<Point> trajectory;
+    vector<float>  timeStamp;
+    float dt=maxTime/numPoints;
+
+    vector<vector<float>> result;
+
+    trajectory.push_back(initialPoint);
+    timeStamp.push_back(0.0);
+    
+    vector<float> startingPoint={0.0,initialPoint.x,initialPoint.y,initialPoint.z};
+    result.push_back(startingPoint);
+    // Example write (optional)
+    if (writting) {
+        stream << "time,x,y,z"<<endl; // CSV header
+        stream<<startingPoint[0]<<","<<startingPoint[1]<<","<<startingPoint[2]<<","<<startingPoint[3]<<endl;
+    }   
+
+    for(int i=0; i<numPoints;i++){
+        vector<float> r=(four_wing(trajectory[i],dt,a,b,c));
+        r[0]=timeStamp[i]+dt;
+
+        Point p;
+        p.x=r[1];
+        p.y=r[2];
+        p.z=r[3];
+
+        trajectory.push_back(p);
+        timeStamp.push_back(r[0]);
+        result.push_back(r);
+
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
+
+        if(writting){
+            stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        }
+
+    }
+
+
+    stream.close();
+
+    return result;
+}
+
+glm::vec3 four_wing(const glm::vec3& point, float dt,float a, float b, float c) {
+     float dx = (a*point.x+point.y*point.z)*dt;
+    float dy = (b*point.x+c*point.y-point.x*point.z)*dt;
+    float dz = (-point.z-point.x*point.y)*dt;
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> four_wing_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime,float a,float b, float c){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = four_wing(last,dt,a,b,c);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
+/* Eq de Sprott
+(dx/dt)= y+axy+xz
+(dy/dt)= 1-b*pow(x,2)+y*z
+(dz/dt)= x-pow(x,2)-pow(y,2)
+*/
+
+/* Valeurs de a,b caractéristiques :
+a=2.07
+b=1.79
+*/
+
+vector<float> sprott(Point point,float dt, float a,float b){
+       
+    float x=point.x;
+    float y=point.y;
+    float z=point.z;
+
+    float dx = (y+a*x*y+x*z)*dt;
+    float dy = (1-b*pow(x,2)+y*z)*dt;
+    float dz = (x-pow(x,2)-pow(y,2))*dt;
+
+    vector<float> result={dt,dx,dy,dz};
+
+    return result;
+}
+
+vector<vector<float>> sprott_trajectory(Point initialPoint,int numPoints,float maxTime, float a, float b){
+    time_t timestamp = time(nullptr);
+    struct tm datetime;
+
+    if (localtime_s(&datetime, &timestamp) != 0) {
+        cerr << "ERROR: localtime_s() failed"<<endl;
+    }
+
+    char output[50];
+    size_t count = strftime(output, sizeof(output), "%d-%m-%Y_%H-%M-%S", &datetime);
+    if (count == 0) {
+        std::cerr << "ERROR: strftime() failed"<<endl;
+    }
+
+    cout << "Formatted time: " << output << endl;
+
+    string name = "../results/sprott_" + string(output)+ ".csv";
+
+    string const file(name);
+
+    ofstream stream(file.c_str());
+
+    bool writting;
+
+    if(stream){
+        writting=true;
+        cout << "File opened: " << name << std::endl;        
+    }
+    else{
+        writting=false;   
+        cout << "ERREUR: Impossible d'ouvrir le fichier." << endl;
+    }
+
+    vector<Point> trajectory;
+    vector<float>  timeStamp;
+    float dt=maxTime/numPoints;
+
+    vector<vector<float>> result;
+
+    trajectory.push_back(initialPoint);
+    timeStamp.push_back(0.0);
+    
+    vector<float> startingPoint={0.0,initialPoint.x,initialPoint.y,initialPoint.z};
+    result.push_back(startingPoint);
+    // Example write (optional)
+    if (writting) {
+        stream << "time,x,y,z"<<endl; // CSV header
+        stream<<startingPoint[0]<<","<<startingPoint[1]<<","<<startingPoint[2]<<","<<startingPoint[3]<<endl;
+    }   
+
+    for(int i=0; i<numPoints;i++){
+        vector<float> r=(sprott(trajectory[i],dt,a,b));
+        r[0]=timeStamp[i]+dt;
+
+        Point p;
+        p.x=r[1];
+        p.y=r[2];
+        p.z=r[3];
+
+        trajectory.push_back(p);
+        timeStamp.push_back(r[0]);
+        result.push_back(r);
+
+        //cout<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+
+
+        if(writting){
+            stream<<r[0]<<","<<r[1]<<","<<r[2]<<","<<r[3]<<endl;
+        }
+
+    }
+
+
+    stream.close();
+
+    return result;
+}
+
+glm::vec3 sprott(const glm::vec3& point, float dt,float a, float b) {
+    float dx = (point.y+a*point.x*point.y+point.x*point.z)*dt;
+    float dy = (1-b*pow(point.x,2)+point.y*point.z)*dt;
+    float dz = (point.x-pow(point.x,2)-pow(point.y,2))*dt;
+
+    return glm::vec3(dx, dy, dz);
+}
+
+vector<glm::vec3> sprott_trajectory(glm::vec3 initialPoint,int numPoints,float maxTime,float a,float b){
+    vector<glm::vec3> trajectory;
+    trajectory.push_back(initialPoint);
+    float dt=maxTime/numPoints;
+    for (int i = 0; i < numPoints; i++) {
+        glm::vec3 last = trajectory.back();
+        glm::vec3 derivatives = sprott(last,dt,a,b);
+        glm::vec3 next = last + derivatives;
+        trajectory.push_back(next);
+    }
+
+    return trajectory;
+}
+
+
+
+
+//speed
+
+//get_speed()
+
+int main(){
+
+    int numPoints=100;
+    float maxTime=5;
     
     Point p;
     p.x=1;
     p.y=1;
     p.z=2;
 
-    float pl=3;
-    float o=2.7;
-    float r=1.7;
-    float c=2;
-    float e=9;
+    float b=0.208186;
+    vector<vector<float>> res1 = thomas_trajectory(p,numPoints,maxTime,b);
+    
+    b=7.91;
+    float a=0.95;
+    float f=4.83;
+    float g=4.66;
+    vector<vector<float>> res2 = lorenz83_trajectory(p,numPoints,maxTime,a,b,f,g);
 
-    vector<vector<float>> res=dadras_trajectory(p,100,5,pl,o,r,c,e);
+    float alpha=0.14;
+    float gamma=0.10;
+    vector<vector<float>> res3 = rabinovich_fabrikant_trajectory(p,numPoints,maxTime,alpha,gamma);
 
-}*/
-
+    a=0.2;
+    b=0.01;
+    float c=-0.4;
+    vector<vector<float>> res4 = four_wing_trajectory(p,numPoints,maxTime,a,b,c);
+    
+    a=2.07;
+    b=1.79;
+    vector<vector<float>> res5 = sprott_trajectory(p,numPoints,maxTime,a,b);
+}
