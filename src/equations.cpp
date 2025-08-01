@@ -140,6 +140,13 @@ vector<glm::vec3> lorenz_trajectory(glm::vec3 initialPoint,int numPoints,float m
     return trajectory;
 }
 
+glm::vec3 speed_lorenz(const glm::vec3& point,float sigma, float rho, float beta) {
+    float vx = sigma * (point.y - point.x);
+    float vy = point.x * (rho - point.z) - point.y;
+    float vz = point.x * point.y - beta * point.z;
+    return glm::vec3(vx, vy, vz);
+}
+
 /*Equation de Rossler:
 dx/dt=-y-z
 dy/dt=x+ay
@@ -265,6 +272,14 @@ vector<glm::vec3> rossler_trajectory(glm::vec3 initialPoint,int numPoints,float 
     }
 
     return trajectory;
+}
+
+glm::vec3 speed_rossler(const glm::vec3& point, float a, float b, float c) {
+    float vx = -(point.y-point.z);
+    float vy = point.x+a*point.z;
+    float vz = b+point.z*(point.x-c);
+
+    return glm::vec3(vx, vy, vz);
 }
 
 /*Equations de Li (Three-Scroll Unified Chaotic System):
@@ -396,6 +411,15 @@ vector<glm::vec3> dequan_li_trajectory(glm::vec3 initialPoint,int numPoints,floa
     return trajectory;
 }
 
+glm::vec3 speed_dequan_li(const glm::vec3& point,float a, float b, float c, float d, float e, float f){
+    
+    float vx = a*(point.y-point.x)+c*point.x*point.z;
+    float vy = e*point.x+f*point.y-point.x*point.z;
+    float vz = b*point.z+point.x*point.y-d*pow(point.x,2);
+
+    return glm::vec3(vx, vy, vz);
+}
+
 /*Equations de Aizawa:
 dx/dt=(z-b)*x-d*y
 dy/dt=d*x+(z-b)*y
@@ -507,7 +531,7 @@ glm::vec3 aizawa(const glm::vec3& point,float dt,float a, float b, float c, floa
 
     float dx=((point.z-b)*point.x-d*point.y)*dt;
     float dy=(d*point.x+(point.z-b)*point.y)*dt;
-    float dz=(c+a*point.z-pow(point.z,3)/3-pow(point.x,2)+f*point.z*pow(point.x,3));
+    float dz=(c+a*point.z-pow(point.z,3)/3-pow(point.x,2)+f*point.z*pow(point.x,3))*dt;
 
     return glm::vec3(dx, dy, dz);
 
@@ -525,6 +549,16 @@ vector<glm::vec3> aizawa_trajectory(glm::vec3 initialPoint,int numPoints,float m
     }
 
     return trajectory;
+}
+
+glm::vec3 speed_aizawa(const glm::vec3& point,float a, float b, float c, float d, float e, float f){
+
+    float vx=(point.z-b)*point.x-d*point.y;
+    float vy=d*point.x+(point.z-b)*point.y;
+    float vz=c+a*point.z-pow(point.z,3)/3-pow(point.x,2)+f*point.z*pow(point.x,3);
+
+    return glm::vec3(vx, vy, vz);
+
 }
 
 /*Equations de Chen-Lee:
@@ -653,6 +687,15 @@ vector<glm::vec3> chen_lee_trajectory(glm::vec3 initialPoint,int numPoints,float
     return trajectory;
 }
 
+glm::vec3 speed_chen_lee(const glm::vec3&  point,float a, float b, float d){
+       
+    float vx=a*point.x-point.y*point.z;
+    float vy=b*point.y+point.x*point.z;
+    float vz=d*point.z+(point.x*point.y)/3;
+
+    return glm::vec3(vx, vy, vz);
+}
+
 /*Equations de Arneodo:
 dx/dt=y
 dy/dt=z
@@ -777,6 +820,14 @@ vector<glm::vec3> arneodo_trajectory(glm::vec3 initialPoint,int numPoints,float 
     }
 
     return trajectory;
+}
+
+glm::vec3 speed_arneodo(const glm::vec3& point,float a, float b, float c){
+    float vx=point.y;
+    float vy=point.z;
+    float vz=-a*point.x-b*point.y-point.z+c*pow(point.x,3);
+
+    return glm::vec3(vx, vy, vz);
 }
 
 /*Equations de Sprott B:
@@ -905,6 +956,15 @@ vector<glm::vec3> sprott_b_trajectory(glm::vec3 initialPoint,int numPoints,float
     return trajectory;
 }
 
+glm::vec3 speed_sprott_b(const glm::vec3& point,float a, float b, float c){
+
+    float vx=a*point.y*point.z;
+    float vy=point.x-b*point.y;
+    float vz=c-point.x*point.y;
+
+    return glm::vec3(vx, vy, vz);
+}
+
 /*Equations de Sprott-Linz F:
 dx/dt=y+z
 dy/dt=-x+a*y
@@ -1027,6 +1087,15 @@ vector<glm::vec3> sprott_linz_f_trajectory(glm::vec3 initialPoint,int numPoints,
     }
 
     return trajectory;
+}
+
+glm::vec3 speed_sprott_linz_f(const glm::vec3& point,float a){
+       
+    float vx=point.y+point.z;
+    float vy=-point.x+a*point.y;
+    float vz=pow(point.x,2)-point.z;
+
+    return glm::vec3(vx, vy, vz);
 }
 
 /*Equations de Dadras:
@@ -1155,6 +1224,15 @@ vector<glm::vec3> dadras_trajectory(glm::vec3 initialPoint,int numPoints,float m
     return trajectory;
 }
 
+glm::vec3 speed_dadras(const glm::vec3& point,float p, float o,float r, float c, float e){
+       
+    float vx=point.y-p*point.x+o*point.y*point.z;
+    float vy=r*point.y-point.x*point.z+point.z;
+    float vz=c*point.x*point.y-e*point.z;
+
+    return glm::vec3(vx, vy, vz);
+}
+
 /*Equations de Halvorsen:
 dx/dt=-a*x-4*y-4*z-y*y
 dy/dt=-a*y-4*z-4*x-z*z
@@ -1278,6 +1356,14 @@ vector<glm::vec3> halvorsen_trajectory(glm::vec3 initialPoint,int numPoints,floa
     return trajectory;
 }
 
+glm::vec3 speed_halvorsen(const glm::vec3& point,float a){
+
+    float vx=-a*point.x-4*point.y-4*point.z-point.y*point.y;
+    float vy=-a*point.y-4*point.z-4*point.x-point.z*point.z;
+    float vz=-a*point.z-4*point.x-4*point.y-point.x*point.x;
+
+    return glm::vec3(vx, vy, vz);
+}
 
 /*Equations de Thomas:
 dx/dt=sin(y)-bx
@@ -1402,6 +1488,14 @@ vector<glm::vec3> thomas_trajectory(glm::vec3 initialPoint,int numPoints,float m
     return trajectory;
 }
 
+glm::vec3 speed_thomas(const glm::vec3& point,float b){
+
+    float vx=sin(point.y)-b*point.x;
+    float vy=sin(point.z)-b*point.y;
+    float vz=sin(point.x)-b*point.z;
+
+    return glm::vec3(vx, vy, vz);
+}
 
 /* Eq de Lorenz83
 (dx/dt)= -a*x-pow(y,2)-pow(z,2)+a*f
@@ -1530,6 +1624,13 @@ vector<glm::vec3> lorenz83_trajectory(glm::vec3 initialPoint,int numPoints,float
     return trajectory;
 }
 
+glm::vec3 speed_lorenz83(const glm::vec3& point,float a,float b, float f, float g) {
+    float vx = -a*point.x-pow(point.y,2)-pow(point.z,2)+a*f;
+    float vy = -point.y+point.x*point.y-b*point.x*point.z+g;
+    float vz = -point.z+b*point.x*point.y+point.x*point.z;
+    return glm::vec3(vx, vy, vz);
+}
+
 /* Eq de Rabinovich-Fabrikant
 (dx/dt)= y*(z-1+pow(x,2))+gamma*x
 (dy/dt)= x(3*z+1-pow(x,2))+gamma*y
@@ -1655,6 +1756,12 @@ vector<glm::vec3> rabinovich_fabrikant_trajectory(glm::vec3 initialPoint,int num
     return trajectory;
 }
 
+glm::vec3 speed_rabinovich_fabrikant(const glm::vec3& point,float alpha, float gamma) {
+    float vx = point.y*(point.z-1+pow(point.x,2))+gamma*point.x;
+    float vy = point.x*(3*point.z+1-pow(point.x,2))+gamma*point.y;
+    float vz = -2*point.z*(alpha+point.x*point.y);
+    return glm::vec3(vx, vy, vz);
+}
 
 /* Eq de Four-Wing
 (dx/dt)= a*x+y*z
@@ -1780,6 +1887,13 @@ vector<glm::vec3> four_wing_trajectory(glm::vec3 initialPoint,int numPoints,floa
     }
 
     return trajectory;
+}
+
+glm::vec3 speed_four_wing(const glm::vec3& point,float a, float b, float c) {
+    float vx = a*point.x+point.y*point.z;
+    float vy = b*point.x+c*point.y-point.x*point.z;
+    float vz = -point.z-point.x*point.y;
+    return glm::vec3(vx, vy, vz);
 }
 
 /* Eq de Sprott
@@ -1908,10 +2022,19 @@ vector<glm::vec3> sprott_trajectory(glm::vec3 initialPoint,int numPoints,float m
     return trajectory;
 }
 
+glm::vec3 speed_sprott(const glm::vec3& point,float a, float b) {
+    float vx = point.y+a*point.x*point.y+point.x*point.z;
+    float vy = 1-b*pow(point.x,2)+point.y*point.z;
+    float vz = point.x-pow(point.x,2)-pow(point.y,2);
 
-
+    return glm::vec3(vx, vy, vz);
+}
 
 //speed
+float speed_norm(glm::vec3& vit){
+    float v=sqrt(pow(vit.x,2)+pow(vit.y,2)+pow(vit.z,2));
+    return v;
+}
 
 //get_speed()
 

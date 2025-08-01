@@ -9,6 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "../include/equations.hpp"
+#include "../include/particle.hpp"
 #include "../include/shader_loader.hpp"
 
 using namespace std;
@@ -114,10 +115,12 @@ float sprottB=1.79;
 //initial trajectory characteristics
 int numPoints=1000;
 float maxTime=5;
+float dt=maxTime/numPoints;
 float x=5.0f;
 float y=5.0f;
 float z=5.0f;
-//int numParticles=0;
+int numParticles=10;
+bool addingParticles=false;
 
 //Generate trajectory
 
@@ -192,6 +195,227 @@ vector<vector<float>> generate_trajectory_csv(AttractorType type, Point start,in
 /*vector<glm::vec3> drawParticles(AttractorType type, const glm::vec3& start,int numPoints,float maxTime){
 
 }*/
+
+float computeSpeed(glm::vec3& point, AttractorType currentAttractor){
+    glm::vec3 vit;
+
+    if (currentAttractor == LORENZ) {
+        vit=speed_lorenz(point,lorenzSigma,lorenzRho,lorenzBeta);
+    } 
+    else if (currentAttractor == ROSSLER) {
+        vit=speed_rossler(point,rosslerA,rosslerB,rosslerC);
+    } 
+    else if (currentAttractor == AIZAWA) {
+        vit=speed_aizawa(point,aizawaA,aizawaB,aizawaC,aizawaD,aizawaE,aizawaF);
+    }
+    else if (currentAttractor == DEQUAN_LI){
+        vit=speed_dequan_li(point,dequan_liA,dequan_liB,dequan_liC,dequan_liD,dequan_liE,dequan_liF);
+    }
+    else if (currentAttractor == CHEN_LEE){
+        vit=speed_chen_lee(point,chen_leeA,chen_leeB,chen_leeD);
+    }
+    else if (currentAttractor == ARNEODO){
+        vit=speed_arneodo(point,arneodoA,arneodoB,arneodoC);
+    }
+    else if (currentAttractor == SPROTT_B){
+        vit=speed_sprott_b(point,sprott_bA,sprott_bB,sprott_bC);
+    }
+    else if (currentAttractor == SPROTT_LINZ_F){
+        vit=speed_sprott_linz_f(point,sprott_linz_fA);
+    }
+    else if (currentAttractor == DADRAS){
+        vit=speed_dadras(point,dadrasP,dadrasO,dadrasR,dadrasC,dadrasE);
+    }
+    else if (currentAttractor == HALVORSEN){
+        vit=speed_halvorsen(point,halvorsenA);
+    }
+    else if (currentAttractor == THOMAS){
+        vit=speed_thomas(point,thomasB);
+    }
+    else if (currentAttractor == LORENZ83){
+        vit=speed_lorenz83(point,lorenz83A,lorenz83B,lorenz83F,lorenz83G);
+    }
+    else if (currentAttractor == RABINOVICH_FABRIKANT){
+        vit=speed_rabinovich_fabrikant(point,rabinovichAlpha,rabinovichGamma);                
+    }
+    else if (currentAttractor == FOUR_WING){
+        vit=speed_four_wing(point,fourWingA,fourWingB,fourWingC);
+    }
+    else if (currentAttractor == SPROTT){
+        vit=speed_sprott(point,sprottA,sprottB);
+    }
+
+    return speed_norm(vit);
+
+}
+
+glm::vec3 getPositionAt(glm::vec3 initialPoint, float timeDuration, AttractorType currentAttractor){
+    glm::vec3 point=initialPoint;
+    float dt=0.01f;
+    int steps = static_cast<int>(timeDuration / dt);
+    int c=0;
+
+    if (currentAttractor == LORENZ) {
+        for (int i = 0; i < steps; i++) {
+            point+=lorenz(point,dt, lorenzSigma,lorenzRho,lorenzBeta);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=lorenz(point,dt, lorenzSigma,lorenzRho,lorenzBeta);
+        }
+    } 
+    else if (currentAttractor == ROSSLER) {
+        for (int i = 0; i < steps; i++) {
+            point+=rossler(point,dt, rosslerA,rosslerB,rosslerC);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=rossler(point,dt, rosslerA,rosslerB,rosslerC);
+        }      
+    } 
+    else if (currentAttractor == AIZAWA) {
+        for (int i = 0; i < steps; i++) {
+            point+=aizawa(point,dt,aizawaA,aizawaB,aizawaC,aizawaD,aizawaE,aizawaF);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=aizawa(point,dt,aizawaA,aizawaB,aizawaC,aizawaD,aizawaE,aizawaF);
+        }        
+    }
+    else if (currentAttractor == DEQUAN_LI){
+        for (int i = 0; i < steps; i++) {
+            point+=dequan_li(point,dt,dequan_liA,dequan_liB,dequan_liC,dequan_liD,dequan_liE,dequan_liF);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=dequan_li(point,dt,dequan_liA,dequan_liB,dequan_liC,dequan_liD,dequan_liE,dequan_liF);
+        }        
+    }
+    else if (currentAttractor == CHEN_LEE){
+        for (int i = 0; i < steps; i++) {
+            point+=chen_lee(point,dt,chen_leeA,chen_leeB,chen_leeD);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=chen_lee(point,dt,chen_leeA,chen_leeB,chen_leeD);
+        }
+    }
+    else if (currentAttractor == ARNEODO){
+        for (int i = 0; i < steps; i++) {
+            point+=arneodo(point,dt,arneodoA,arneodoB,arneodoC);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=arneodo(point,dt,arneodoA,arneodoB,arneodoC);
+        }
+    }
+    else if (currentAttractor == SPROTT_B){
+        for (int i = 0; i < steps; i++) {
+            point+=sprott_b(point,dt,sprott_bA,sprott_bB,sprott_bC);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=sprott_b(point,dt,sprott_bA,sprott_bB,sprott_bC);
+        }
+    }
+    else if (currentAttractor == SPROTT_LINZ_F){
+        for (int i = 0; i < steps; i++) {
+            point+=sprott_linz_f(point,dt,sprott_linz_fA);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=sprott_linz_f(point,dt,sprott_linz_fA);
+        }
+    }
+    else if (currentAttractor == DADRAS){
+        for (int i = 0; i < steps; i++) {
+            point+=dadras(point,dt,dadrasP,dadrasO,dadrasR,dadrasC,dadrasE);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=dadras(point,dt,dadrasP,dadrasO,dadrasR,dadrasC,dadrasE);
+        }
+    }
+    else if (currentAttractor == HALVORSEN){
+        for (int i = 0; i < steps; i++) {
+            point+=halvorsen(point,dt,halvorsenA);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=halvorsen(point,dt,halvorsenA);
+        }       
+    }
+    else if (currentAttractor == THOMAS){
+        for (int i = 0; i < steps; i++) {
+            point+=thomas(point,dt,thomasB);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=thomas(point,dt,thomasB);
+        }
+    }
+    else if (currentAttractor == LORENZ83){
+        for (int i = 0; i < steps; i++) {
+            point+=lorenz83(point,dt,lorenz83A,lorenz83B,lorenz83F,lorenz83G);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=lorenz83(point,dt,lorenz83A,lorenz83B,lorenz83F,lorenz83G);
+        }
+    }
+    else if (currentAttractor == RABINOVICH_FABRIKANT){
+        for (int i = 0; i < steps; i++) {
+            point+=rabinovich_fabrikant(point,dt,rabinovichAlpha,rabinovichGamma);
+            c=i+1;  
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=rabinovich_fabrikant(point,dt,rabinovichAlpha,rabinovichGamma);
+        }        
+    }
+    else if (currentAttractor == FOUR_WING){
+        for (int i = 0; i < steps; i++) {
+           point+=four_wing(point,dt,fourWingA,fourWingB,fourWingC);
+           c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=four_wing(point,dt,fourWingA,fourWingB,fourWingC);
+        }
+    }
+    else if (currentAttractor == SPROTT){
+        for (int i = 0; i < steps; i++) {
+            point+=sprott(point,dt,sprottA,sprottB);
+            c=i+1;
+        }
+        if(c*dt<=timeDuration){
+            dt=timeDuration-c*dt;
+            point+=sprott(point,dt,sprottA,sprottB);
+        }
+    }
+
+    return point;
+}
+
+void drawParticle(const glm::vec3& pos, const glm::vec3& color) {
+    glPointSize(5.0f);
+    glBegin(GL_POINTS);
+    glColor3f(color.r, color.g, color.b);
+    glVertex3f(pos.x, pos.y, pos.z);
+    glEnd();
+}
 
 //Actions window call back
 
@@ -325,6 +549,8 @@ int main() {
     vector<glm::vec3> trajectory=generate_trajectory(currentAttractor,initialPoint,numPoints,maxTime);
     cout << "Trajectory size: " << trajectory.size() << endl;
 
+    vector<Particle> particles;
+
     GLuint VAO, VBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -336,10 +562,10 @@ int main() {
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 
+
     GLuint shaderProgram = LoadShaders("../shaders/vertex.glsl", "../shaders/fragment.glsl");
     glUseProgram(shaderProgram);
     cout << "Shader program ID: " << shaderProgram << endl;
-
 
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -359,6 +585,7 @@ int main() {
             ImGui::InputFloat("Z", &initialPoint.z, 0.1f, 1.0f, "%.2f");
             ImGui::InputInt("Number of points", &numPoints, 1, 1);
             ImGui::InputFloat("Time duration (in sec)", &maxTime, 0.1f, 1.0f, "%.2f");
+            dt=maxTime/numPoints;
         }
 
         if (ImGui::CollapsingHeader("Choose Attractor", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -381,14 +608,6 @@ int main() {
                 ImGui::InputFloat("b", &rosslerB, 0.1f, 1.0f, "%.3f");
                 ImGui::InputFloat("c", &rosslerC, 0.1f, 1.0f, "%.3f");
             } 
-            else if (currentAttractor == AIZAWA) {
-                ImGui::InputFloat("a", &aizawaA, 0.1f, 1.0f, "%.3f");
-                ImGui::InputFloat("b", &aizawaB, 0.1f, 1.0f, "%.3f");
-                ImGui::InputFloat("c", &aizawaC, 0.1f, 1.0f, "%.3f");
-                ImGui::InputFloat("d", &aizawaD, 0.1f, 1.0f, "%.3f");
-                ImGui::InputFloat("e", &aizawaE, 0.1f, 1.0f, "%.3f");
-                ImGui::InputFloat("f", &aizawaF, 0.1f, 1.0f, "%.3f");
-            }
             else if (currentAttractor == DEQUAN_LI){
                 ImGui::InputFloat("a",&dequan_liA, 0.1f, 1.0f, "%.3f");
                 ImGui::InputFloat("b", &dequan_liB, 0.1f, 1.0f, "%.3f");
@@ -457,13 +676,14 @@ int main() {
             }
         }
 
-        /*if (ImGui::CollapsingHeader("Particles", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::CollapsingHeader("Particles", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::InputInt("Number of particles", &numParticles, 1, 1);
             if(ImGui::Button("Add particles")){
-                drawParticles();
-                
+                particles=createParticles(numParticles,numPoints);
+                cout<<particles.size()<<endl;
+                //drawParticles();
             }
-        }*/
+        }
 
         if (ImGui::Button("Generate Trajectory")) {
             trajectory = generate_trajectory(currentAttractor, initialPoint,numPoints,maxTime);
@@ -490,7 +710,6 @@ int main() {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
         glm::vec3 direction;
         direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
         direction.y = sin(glm::radians(pitch));
@@ -507,9 +726,22 @@ int main() {
         GLint mvpLoc = glGetUniformLocation(shaderProgram, "mvp");
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 
+        for (auto& p : particles) {
+            p.position +=p.speed*dt;
+
+            // Loop back to start
+            if (p.position >= trajectory.size() - 1) {
+                p.position = 0.0f;
+            }
+        }
+
         glBindVertexArray(VAO);
         glDrawArrays(GL_LINE_STRIP, 0, trajectory.size());
         glBindVertexArray(0);
+
+        for (auto& p : particles) {
+            glm::vec3 pos = getInterpolatedPosition(trajectory, p.position);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();

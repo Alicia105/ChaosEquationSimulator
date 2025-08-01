@@ -14,6 +14,7 @@ add_subdirectory(external/glfw)
 add_executable(ChaosEquationSimulator 
     src/main.cpp 
     src/equations.cpp
+    src/particle.cpp
     src/shader_loader.cpp 
     external/glad/src/glad.c
     external/imgui/imgui.cpp
