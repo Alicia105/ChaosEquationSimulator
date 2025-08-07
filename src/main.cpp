@@ -554,7 +554,6 @@ int main() {
     glGenBuffers(1, &particlePosVBO);
     glGenBuffers(1, &particleColorVBO);
 
-
     //Trajectory setup
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -576,8 +575,6 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
-
-
 
     GLuint shaderProgram = LoadShaders("../shaders/vertex.glsl", "../shaders/fragment.glsl");
     glUseProgram(shaderProgram);
@@ -701,7 +698,7 @@ int main() {
             if(ImGui::Button("Add particles")){
                 particles=createParticles(numParticles,numPoints);
                 cout<<particles.size()<<endl;
-                //drawParticles();
+                addingParticles=true;
             }
         }
 
@@ -723,6 +720,12 @@ int main() {
             pitch = 0.0f;
             radius = 50.0f;
             cameraTarget = glm::vec3(0.0f);
+
+            numParticles=10;
+            addingParticles=false;
+            particlePositions.clear();
+            particleColors.clear();
+            particles.clear();
         }
         ImGui::End();
         // =====================
@@ -747,45 +750,49 @@ int main() {
         GLint mvpLoc = glGetUniformLocation(shaderProgram, "mvp");
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 
-        // Update particles
-        for (auto& p : particles) {
-            p.position +=p.speed*dt; // change that later
-
-            // Loop back to start
-            if (p.position >= trajectory.size() - 1) {
-                p.position = 0.0f;
-            }
-        }
-
-        //Draw particles
+        //Draw trajectory
         glBindVertexArray(VAO);
         glDrawArrays(GL_LINE_STRIP, 0, trajectory.size());
         glBindVertexArray(0);
 
-        // Interpolate particle positions
-        particlePositions.clear();
-        particleColors.clear();
 
-        for (auto& p : particles) {
-            int idx = static_cast<int>(p.position);   // base index
-            float alpha = p.position - idx;           // fractional part
-            float t = alpha * dt;
-            glm::vec3 pos = getPositionAt(trajectory[idx],t,currentAttractor);
-            particlePositions.push_back(pos);
-            particleColors.push_back(p.color);
+        if(addingParticles){
+            // Update particles
+            for (auto& p : particles) {
+                p.position +=p.speed*dt; // change that later
+
+                // Loop back to start
+                if (p.position >= trajectory.size() - 1) {
+                    p.position = 0.0f;
+                }
+            }
+
+            
+            // Interpolate particle positions
+            particlePositions.clear();
+            particleColors.clear();
+
+            for (auto& p : particles) {
+                int idx = static_cast<int>(p.position);   // base index
+                float alpha = p.position - idx;           // fractional part
+                float t = alpha * dt;
+                glm::vec3 pos = getPositionAt(trajectory[idx],t,currentAttractor);
+                particlePositions.push_back(pos);
+                particleColors.push_back(p.color);
+            }
+
+            // Upload to VBO:
+            glBindBuffer(GL_ARRAY_BUFFER, particlePosVBO);
+            glBufferData(GL_ARRAY_BUFFER, particlePositions.size() * sizeof(glm::vec3), particlePositions.data(), GL_DYNAMIC_DRAW);
+
+            glBindBuffer(GL_ARRAY_BUFFER, particleColorVBO);
+            glBufferData(GL_ARRAY_BUFFER, particleColors.size() * sizeof(glm::vec3), particleColors.data(), GL_DYNAMIC_DRAW);
+
+            // Draw particles
+            glBindVertexArray(particleVAO);
+            glDrawArrays(GL_POINTS, 0, particlePositions.size());
+            glBindVertexArray(0);
         }
-
-        // Upload to VBO:
-        glBindBuffer(GL_ARRAY_BUFFER, particlePosVBO);
-        glBufferData(GL_ARRAY_BUFFER, particlePositions.size() * sizeof(glm::vec3), particlePositions.data(), GL_DYNAMIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, particleColorVBO);
-        glBufferData(GL_ARRAY_BUFFER, particleColors.size() * sizeof(glm::vec3), particleColors.data(), GL_DYNAMIC_DRAW);
-
-        // Draw particles
-        glBindVertexArray(particleVAO);
-        glDrawArrays(GL_POINTS, 0, particlePositions.size());
-        glBindVertexArray(0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -800,6 +807,12 @@ int main() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
+
+    // Clean up particle buffers
+    glDeleteVertexArrays(1, &particleVAO);
+    glDeleteBuffers(1, &particlePosVBO);
+    glDeleteBuffers(1, &particleColorVBO);
+
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
