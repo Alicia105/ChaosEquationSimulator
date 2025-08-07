@@ -576,9 +576,11 @@ int main() {
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
-    GLuint shaderProgram = LoadShaders("../shaders/vertex.glsl", "../shaders/fragment.glsl");
-    glUseProgram(shaderProgram);
-    cout << "Shader program ID: " << shaderProgram << endl;
+    GLuint trajectoryShader = LoadShaders("../shaders/vertex.glsl", "../shaders/fragment.glsl");
+    GLuint particleShader   = LoadShaders("../shaders/particle_vertex.glsl",   "../shaders/particle_fragment.glsl");
+
+    cout << "Trajectory Shader program ID: " << trajectoryShader << endl;
+    cout << "Particle Shader program ID: " << particleShader << endl;
 
     // Enable point drawing
     glEnable(GL_PROGRAM_POINT_SIZE);
@@ -746,15 +748,12 @@ int main() {
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
         glm::mat4 mvp = projection * view * model;
 
-        glUseProgram(shaderProgram);
-        GLint mvpLoc = glGetUniformLocation(shaderProgram, "mvp");
-        glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-
         //Draw trajectory
+        glUseProgram(trajectoryShader);      
+        glUniformMatrix4fv(glGetUniformLocation(trajectoryShader, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
         glBindVertexArray(VAO);
         glDrawArrays(GL_LINE_STRIP, 0, trajectory.size());
         glBindVertexArray(0);
-
 
         if(addingParticles){
             // Update particles
@@ -767,7 +766,6 @@ int main() {
                 }
             }
 
-            
             // Interpolate particle positions
             particlePositions.clear();
             particleColors.clear();
@@ -789,9 +787,12 @@ int main() {
             glBufferData(GL_ARRAY_BUFFER, particleColors.size() * sizeof(glm::vec3), particleColors.data(), GL_DYNAMIC_DRAW);
 
             // Draw particles
+            glUseProgram(particleShader);
+            glUniformMatrix4fv(glGetUniformLocation(particleShader, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
             glBindVertexArray(particleVAO);
             glDrawArrays(GL_POINTS, 0, particlePositions.size());
             glBindVertexArray(0);
+
         }
 
         glfwSwapBuffers(window);
@@ -806,13 +807,13 @@ int main() {
     // Cleanup
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
+    glDeleteProgram(trajectoryShader);
+    glDeleteProgram(particleShader);
 
     // Clean up particle buffers
     glDeleteVertexArrays(1, &particleVAO);
     glDeleteBuffers(1, &particlePosVBO);
     glDeleteBuffers(1, &particleColorVBO);
-
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -822,85 +823,3 @@ int main() {
     glfwTerminate();
     return 0;
 }
-
-/*int main() {
-    if (!glfwInit()) {
-        cerr << "Failed to initialize GLFW\n";
-        return -1;
-    }
-
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Triangle Test", nullptr, nullptr);
-    if (!window) {
-        cerr << "Failed to create window\n";
-        glfwTerminate();
-        return -1;
-    }
-
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        cerr << "Failed to initialize GLAD\n";
-        return -1;
-    }
-
-    glEnable(GL_DEPTH_TEST);
-    glLineWidth(2.0f);
-
-    // Define triangle vertices
-    glm::vec3 triangle[] = {
-        glm::vec3(-1.0f, -1.0f, 0.0f),
-        glm::vec3( 1.0f, -1.0f, 0.0f),
-        glm::vec3( 0.0f,  1.0f, 0.0f)
-    };
-
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
-
-    GLuint shaderProgram = LoadShaders("../shaders/vertex.glsl", "../shaders/fragment.glsl");
-    glUseProgram(shaderProgram);
-    cout << "Shader program ID: " << shaderProgram << endl;
-
-    while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-        glm::mat4 mvp = projection * view * model;
-
-        glUseProgram(shaderProgram);
-        GLint mvpLoc = glGetUniformLocation(shaderProgram, "mvp");
-        glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
-
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glBindVertexArray(0);
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-
-    GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR) {
-        cerr << "OpenGL error: " << err << endl;
-    }
-
-    // Cleanup
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
-
-    glfwTerminate();
-    return 0;
-}*/
-
