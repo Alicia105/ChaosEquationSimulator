@@ -1,6 +1,6 @@
 #ifndef PARTICLE_HPP
 #define PARTICLE_HPP
-
+#include <glm/glm.hpp>
 struct Particle{
     float position;
     float speed;
@@ -10,6 +10,6 @@ struct Particle{
 };
 
 std::vector<Particle> createParticles(int numParticles,int numPoints);
-glm::vec3 getInterpolatedPosition(vector<glm::vec3>& path, float t);
+glm::vec3 getInterpolatedPosition(std::vector<glm::vec3>& path, float t);
 
 #endif

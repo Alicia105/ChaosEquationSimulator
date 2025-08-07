@@ -14,7 +14,13 @@ vector<Particle> createParticles(int numParticles,int numPoints){
     for(int i=0; i<numParticles; i++){
         Particle p;
         p.position = static_cast<float>(rand() % numPoints);  // random starting index
-        p.speed = 0.05f + static_cast<float>(rand() % 50) / 1000.0f; // random speed ~0.05 - 0.1       
+        p.speed = 0.05f + static_cast<float>(rand() % 50) / 1000.0f; // random speed ~0.05 - 0.1
+        glm::vec3 color = glm::vec3(
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX,
+            static_cast<float>(rand()) / RAND_MAX
+        );      
+        p.color=color;
         particles.push_back(p);
     }
     return particles;
