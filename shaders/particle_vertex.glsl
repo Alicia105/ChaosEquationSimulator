@@ -9,4 +9,3 @@ void main() {
     gl_Position = mvp * vec4(aPos, 1.0);
     vertexColor = aColor;
 }
-
