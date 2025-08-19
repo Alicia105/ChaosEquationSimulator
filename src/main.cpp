@@ -705,6 +705,7 @@ int main() {
         }
 
         if (ImGui::Button("Generate Trajectory")) {
+            addingParticles=false;
             trajectory = generate_trajectory(currentAttractor, initialPoint,numPoints,maxTime);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, trajectory.size() * sizeof(glm::vec3), trajectory.data(), GL_STATIC_DRAW);
@@ -758,6 +759,11 @@ int main() {
         if(addingParticles){
             // Update particles
             for (auto& p : particles) {
+                int idx = static_cast<int>(p.position);   // base index
+                float alpha = p.position - idx;           // fractional part
+                float t = alpha * dt;
+                glm::vec3 pos = getPositionAt(trajectory[idx],t,currentAttractor);
+                p.speed=computeSpeed(pos,currentAttractor);
                 p.position +=p.speed*dt; // change that later
 
                 // Loop back to start
